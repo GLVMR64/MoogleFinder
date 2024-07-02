@@ -1,0 +1,104 @@
+/* styles.css */
+body {
+    background: linear-gradient(135deg, #000000, #434343);
+    color: #fff;
+    font-family: 'Cinzel', serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  
+  .App {
+    text-align: center;
+    padding: 20px;
+    max-width: 800px;
+    margin: auto;
+  }
+  
+  button {
+    background-color: #cc0000;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    margin: 20px;
+    transition: background-color 0.3s;
+  }
+  
+  button:hover {
+    background-color: #ff4444;
+  }
+  
+  .character-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 20px;
+    margin: 20px auto;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    color: #fff;
+    text-align: left;
+  }
+  
+  .character-card h1 {
+    margin: 0;
+    font-size: 24px;
+  }
+  
+  .character-card h3 {
+    margin: 10px 0;
+  }
+  
+  .character-card img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
+  }
+  
+  input, select {
+    padding: 10px;
+    font-size: 16px;
+    margin: 20px;
+    border-radius: 5px;
+    border: 1px solid #333;
+    background-color: #1a1a1a;
+    color: #fff;
+  }
+  
+  .scroll-button {
+    background-color: #cc0000;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    margin: 10px;
+    transition: background-color 0.3s;
+    position: fixed;
+    right: 20px;
+  }
+  
+  .scroll-button:hover {
+    background-color: #ff4444;
+  }
+  
+  .scroll-button:first-of-type {
+    top: 20px;
+  }
+  
+  .scroll-button:last-of-type {
+    bottom: 20px;
+  }
+  
+  .moogle-image {
+    width: 150px;
+    height: auto;
+    margin: 20px;
+  }
+  

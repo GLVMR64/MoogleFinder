@@ -1,31 +1,33 @@
-import React, { useEffect, useState } from 'react';
-import { getCharacters, getMonsters, getGames, getRandomCharacter, searchCharacters, searchMonsters } from './moogleapi.js';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Sidebar from './pages/Sidebar';
+import Home from './pages/Home';
+import SearchPage from './pages/Search';
+import CollectionPage from './pages/Collection';
+import axios from 'axios';
 import './styles.css';
 
 const App = () => {
   const [characters, setCharacters] = useState([]);
   const [monsters, setMonsters] = useState([]);
-  const [games, setGames] = useState([]);
-  const [filteredCharacters, setFilteredCharacters] = useState([]);
-  const [filteredMonsters, setFilteredMonsters] = useState([]);
-  const [randomCharacter, setRandomCharacter] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searchType, setSearchType] = useState('characters'); // New state to manage search type
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
+  // Fetch initial data for characters and monsters
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+
       try {
-        const charactersData = await getCharacters();
-        const monstersData = await getMonsters();
-        const gamesData = await getGames();
-        setCharacters(charactersData);
-        setMonsters(monstersData);
-        setGames(gamesData);
-        setFilteredCharacters(charactersData);
-        setFilteredMonsters(monstersData);
-      } catch (error) {
-        console.error('Error fetching data:', error);
+        const [charactersRes, monstersRes] = await Promise.all([
+          axios.get('https://www.moogleapi.com/api/v1/characters'),
+          axios.get('https://www.moogleapi.com/api/v1/monsters'),
+        ]);
+        setCharacters(charactersRes.data);
+        setMonsters(monstersRes.data);
+      } catch (err) {
+        setError('Failed to fetch data from the API.');
       } finally {
         setLoading(false);
       }
@@ -34,99 +36,30 @@ const App = () => {
     fetchData();
   }, []);
 
-  const fetchRandomCharacter = async () => {
-    try {
-      const randomData = await getRandomCharacter();
-      setRandomCharacter(randomData);
-    } catch (error) {
-      console.error('Error fetching random character:', error);
-    }
-  };
-
-  const handleSearchChange = async (event) => {
-    const value = event.target.value;
-    setSearchTerm(value);
-    if (value) {
-      try {
-        if (searchType === 'characters') {
-          const searchResults = await searchCharacters(`name=${value}`);
-          setFilteredCharacters(searchResults);
-        } else if (searchType === 'monsters') {
-          const searchResults = await searchMonsters(`name=${value}`);
-          setFilteredMonsters(searchResults);
-        }
-      } catch (error) {
-        console.error(`Error searching ${searchType}:`, error);
-      }
-    } else {
-      setFilteredCharacters(characters);
-      setFilteredMonsters(monsters);
-    }
-  };
-
-  const handleSearchTypeChange = (event) => {
-    setSearchType(event.target.value);
-    setSearchTerm('');
-    setFilteredCharacters(characters);
-    setFilteredMonsters(monsters);
-  };
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const scrollToBottom = () => {
-    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
-  };
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
   return (
-    <div className="App">
-      <button className="scroll-button" onClick={scrollToBottom}>Go to Bottom</button>
-      <h1>MoogleFinder</h1>
-      <img src={`${process.env.PUBLIC_URL}/moogleicon.png`} alt="Moogle" className="moogle-image" />
-      <button onClick={fetchRandomCharacter}>Get Random Character</button>
-      {randomCharacter && (
-        <div className="character-card">
-          <h1>Name: {randomCharacter.name}</h1>
-          <h3>Origin: {randomCharacter.origin}</h3>
-          <h3>Job/Class: {randomCharacter.job}</h3>
-          {randomCharacter.picture && <img src={randomCharacter.picture} alt={randomCharacter.name} />}
-        </div>
-      )}
-      <select value={searchType} onChange={handleSearchTypeChange}>
-        <option value="characters">Characters</option>
-        <option value="monsters">Monsters</option>
-      </select>
-      <input
-        type="text"
-        placeholder={`Search ${searchType}...`}
-        value={searchTerm}
-        onChange={handleSearchChange}
-      />
-      <div>
-        {searchType === 'characters' && filteredCharacters.map((character) => (
-          <div key={character.name} className="character-card">
-            <h1>{character.name}</h1>
-            <h3>{character.origin}</h3>
-            <h3>{character.gender}</h3>
-            {character.picture && <img src={character.picture} alt={character.name} />}
-          </div>
-        ))}
-        {searchType === 'monsters' && filteredMonsters.map((monster) => (
-          <div key={monster.name} className="character-card">
-            <h1>{monster.name}</h1>
-            <h3>{monster.game}</h3>
-            <h3>Elemental Affinity: {monster.elementalAffinities?.join(', ') || 'None'}</h3>
-            {monster.picture && <img src={monster.picture} alt={monster.name} />}
-          </div>
-        ))}
+    <Router>
+      <div className="App">
+        <Sidebar />
+        <Routes>
+          <Route
+            path="/"
+            element={<Home characters={characters} monsters={monsters} />}
+          />
+          <Route
+            path="/search"
+            element={
+              <SearchPage
+                characters={characters}
+                monsters={monsters}
+                loading={loading}
+                error={error}
+              />
+            }
+          />
+          <Route path="/collection" element={<CollectionPage />} />
+        </Routes>
       </div>
-      <button className="scroll-button" onClick={scrollToTop}>Back to Top</button>
-    </div>
+    </Router>
   );
 };
 
